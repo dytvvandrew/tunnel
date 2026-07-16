@@ -19,7 +19,7 @@ RAG 不依赖某一个大模型供应商，它是平台后端自己的检索流�
 BRAIN_PROVIDER=commercial-api
 BRAIN_API_BASE=https://api.example.com/v1
 BRAIN_MODEL=your-chat-model
-BRAIN_API_KEY=sk-xxxxxxxx
+BRAIN_API_KEY=YOUR_API_KEY_HERE
 BRAIN_RAG_ENABLED=1
 ```
 
@@ -37,4 +37,3 @@ BRAIN_RAG_ENABLED=1
 ## 注意
 
 商业 API 的上下文窗口、价格、速率限制和数据合规策略不同，需要按供应商确认。平台侧只要求接口兼容 `/v1/chat/completions`。
-

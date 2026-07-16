@@ -1,0 +1,16 @@
+[Unit]
+Description=Tunnel Smart Control Platform
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=csuvla
+WorkingDirectory=/home/csuvla/dyt/tunnel-platform
+ExecStart=/bin/bash /home/csuvla/dyt/tunnel-platform/scripts/start_platform.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,166 @@
+{
+  "version": "2026-06-25",
+  "name": "tunnel_domain_rag",
+  "description": "Five-layer RAG knowledge base for tunnel construction control.",
+  "priority_order": [
+    "platform_realtime",
+    "project_documents",
+    "current_standards",
+    "textbook_reference",
+    "qa_training_samples"
+  ],
+  "layers": {
+    "engineering_principles": {
+      "label": "工程原理库",
+      "authority_level": "教材参考",
+      "description": "隧道基础概念、勘测设计、主体建筑、围岩压力和支护结构计算。",
+      "default_tags": ["隧道原理", "围岩", "支护", "衬砌", "勘测设计"]
+    },
+    "construction_methods": {
+      "label": "施工工艺库",
+      "authority_level": "教材参考",
+      "description": "施工方法、钻爆施工、新奥法、辅助作业、TBM 和施工组织。",
+      "default_tags": ["施工", "钻爆", "超欠挖", "新奥法", "监控量测", "TBM"]
+    },
+    "operation_maintenance": {
+      "label": "运维养护库",
+      "authority_level": "教材参考",
+      "description": "隧道运营管理、病害识别、养护维修和安全设施。",
+      "default_tags": ["运营", "养护", "病害", "维修", "渗漏水"]
+    },
+    "qa_training_samples": {
+      "label": "训练题/问答样本库",
+      "authority_level": "习题参考",
+      "description": "教材习题、名词解释和简答题，可用于演示问答、评测和后续微调。",
+      "default_tags": ["习题", "名词解释", "简答题", "训练样本"]
+    },
+    "platform_realtime": {
+      "label": "平台实时数据层",
+      "authority_level": "平台实时数据",
+      "description": "由现有平台数据库实时提供：隧道、断面、测点、超欠挖、监控量测、预警和上传模型。",
+      "default_tags": ["当前隧道", "实时数据", "预警", "测点", "三维模型"]
+    }
+  },
+  "documents": [
+    {
+      "file": "ch00_intro.txt",
+      "source_file": "第0章－绪论.doc",
+      "chapter": "第0章 绪论",
+      "layer": "engineering_principles",
+      "topic_tags": ["隧道概念", "隧道分类", "地下工程"]
+    },
+    {
+      "file": "ch01_survey_design.txt",
+      "source_file": "第一章－隧道工程勘测设计.DOC",
+      "chapter": "第一章 隧道工程勘测设计",
+      "layer": "engineering_principles",
+      "topic_tags": ["勘测设计", "地质调查", "洞口位置", "线路选择"]
+    },
+    {
+      "file": "ch02_main_structure.txt",
+      "source_file": "第二章－主体建筑.doc",
+      "chapter": "第二章 隧道主体建筑结构",
+      "layer": "engineering_principles",
+      "topic_tags": ["主体建筑", "净空", "限界", "衬砌", "洞门"]
+    },
+    {
+      "file": "ch03_auxiliary_structure.txt",
+      "source_file": "第三章－隧道附属建筑.DOC",
+      "chapter": "第三章 隧道附属建筑",
+      "layer": "engineering_principles",
+      "topic_tags": ["附属建筑", "避车洞", "防排水", "通风", "照明"]
+    },
+    {
+      "file": "ch04_surrounding_rock_pressure.txt",
+      "source_file": "第四章－围岩分类与围岩压力.doc",
+      "chapter": "第四章 围岩分类与围岩压力",
+      "layer": "engineering_principles",
+      "topic_tags": ["围岩", "围岩分类", "围岩压力", "坍方", "地下水"]
+    },
+    {
+      "file": "ch05_support_structure_calculation.txt",
+      "source_file": "第五章－隧道支护结构计算方法(含洞门计算).doc",
+      "chapter": "第五章 隧道支护结构的计算",
+      "layer": "engineering_principles",
+      "topic_tags": ["支护结构", "围岩压力", "荷载结构法", "弹性支承法", "洞门计算"]
+    },
+    {
+      "file": "ch06_construction_methods.txt",
+      "source_file": "第六章－隧道施工方法.DOC",
+      "chapter": "第六章 隧道施工方法",
+      "layer": "construction_methods",
+      "topic_tags": ["施工方法", "开挖", "支护", "台阶法", "全断面法"]
+    },
+    {
+      "file": "ch07_drill_blast.txt",
+      "source_file": "第七章－隧道钻爆施工作业.doc",
+      "chapter": "第七章 隧道钻爆法施工作业",
+      "layer": "construction_methods",
+      "topic_tags": ["钻爆", "爆破", "炮眼", "超挖", "欠挖", "开挖轮廓", "围岩扰动"]
+    },
+    {
+      "file": "ch08_auxiliary_works.txt",
+      "source_file": "第八章  施工辅助作业.doc",
+      "chapter": "第八章 隧道施工辅助作业",
+      "layer": "construction_methods",
+      "topic_tags": ["辅助坑道", "通风", "防尘", "排水", "供电", "照明"]
+    },
+    {
+      "file": "ch09_natm.txt",
+      "source_file": "第九章－新奥法.doc",
+      "chapter": "第九章 新奥法",
+      "layer": "construction_methods",
+      "topic_tags": ["新奥法", "监控量测", "锚杆", "喷射混凝土", "初期支护", "二次衬砌"]
+    },
+    {
+      "file": "ch10_tbm.txt",
+      "source_file": "第十章 隧道掘进机开挖技术.doc",
+      "chapter": "第十章 隧道掘进机施工",
+      "layer": "construction_methods",
+      "topic_tags": ["TBM", "掘进机", "机械开挖", "护盾", "刀盘"]
+    },
+    {
+      "file": "ch11_high_speed_tunnel.txt",
+      "source_file": "第十一章－高速隧道.doc",
+      "chapter": "第十一章 高速铁路的隧道工程",
+      "layer": "engineering_principles",
+      "topic_tags": ["高速铁路", "空气动力学", "高速隧道"]
+    },
+    {
+      "file": "ch12_construction_organization.txt",
+      "source_file": "第十二章－施工组织.DOC",
+      "chapter": "第十二章 隧道施工组织与管理",
+      "layer": "construction_methods",
+      "topic_tags": ["施工组织", "施工准备", "进度管理", "质量管理", "安全管理"]
+    },
+    {
+      "file": "ch13_operation_maintenance.txt",
+      "source_file": "第十三章－隧道的营运与养护维修.DOC",
+      "chapter": "第十三章 隧道的营运管理与养护维修",
+      "layer": "operation_maintenance",
+      "topic_tags": ["运营管理", "养护维修", "隧道病害", "渗漏水", "检查"]
+    },
+    {
+      "file": "exercise_main.txt",
+      "source_file": "隧道工程习题.doc",
+      "chapter": "隧道工程习题",
+      "layer": "qa_training_samples",
+      "topic_tags": ["习题", "训练样本", "问答"]
+    },
+    {
+      "file": "exercise_1.txt",
+      "source_file": "隧道工程习题1.doc",
+      "chapter": "隧道工程习题1",
+      "layer": "qa_training_samples",
+      "topic_tags": ["习题", "名词解释", "简答题"]
+    }
+  ],
+  "chunking": {
+    "max_chars": 900,
+    "overlap_chars": 140
+  },
+  "retrieval": {
+    "default_top_k": 6,
+    "max_context_chars": 5200
+  }
+}

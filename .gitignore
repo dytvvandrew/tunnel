@@ -1,0 +1,47 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Python/runtime noise
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Generated platform files and local database
+platform/*
+!platform/.gitkeep
+!platform/assets/
+!platform/assets/.gitkeep
+!platform/assets/tunnel_excavation_hero.svg
+
+# Project data, model assets, uploads, and runtime backups
+structured/*
+!structured/.gitkeep
+raw/*
+!raw/.gitkeep
+models/*
+!models/.gitkeep
+uploads/*
+!uploads/.gitkeep
+runtime_backups/*
+!runtime_backups/.gitkeep
+
+# RAG content and generated indexes can be large/proprietary.
+rag/raw/*
+!rag/raw/.gitkeep
+rag/processed/*
+!rag/processed/.gitkeep
+rag/chunks/*
+!rag/chunks/.gitkeep
+rag/indexes/*
+!rag/indexes/.gitkeep
+rag/metadata/*
+!rag/metadata/.gitkeep
+
+# Logs
+logs/
+*.log
+

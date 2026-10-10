@@ -37,3 +37,14 @@ BRAIN_RAG_ENABLED=1
 ## 注意
 
 商业 API 的上下文窗口、价格、速率限制和数据合规策略不同，需要按供应商确认。平台侧只要求接口兼容 `/v1/chat/completions`。
+
+## 从 GitHub Pages 调用服务器版
+
+GitHub Pages 只提供 AI 助手入口，真正的 `/api/brain/chat`、登录态、RAG 索引和模型调用仍在服务器完成。服务器 `.env` 需要显式允许页面来源：
+
+```bash
+TUNNEL_CORS_ORIGINS=https://dytvvandrew.github.io
+TUNNEL_CROSS_SITE_COOKIES=1
+```
+
+同时使用 HTTPS。不要把 `BRAIN_API_KEY`、内部 Qwen 地址或 RAG 文件放进 `docs/`，也不要在浏览器代码中直接调用模型供应商。

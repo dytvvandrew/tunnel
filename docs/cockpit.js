@@ -33,6 +33,9 @@ const projects = {
 
 let state = {tunnel: "east", index: 0, stage: 6, timer: null};
 let sceneApi = null;
+let brainMode = localStorage.getItem("tunnel-brain-mode") || "demo";
+let brainBaseUrl = localStorage.getItem("tunnel-brain-base-url") || "";
+let brainHistory = [];
 const project = () => projects[state.tunnel];
 const segment = () => project().segments[state.index];
 const valueAt = (row, stage) => row[1][stage];
@@ -94,8 +97,50 @@ function setView(id) {
   if (id === "report") { $("reportTunnel").value=state.tunnel; $("reportStage").value=String(state.stage); renderReport(); }
   if (id === "patrol") { $("patrolTunnel").value=state.tunnel; fillPatrolSegments(state.index); }
   if (id === "simulation") { $("simulationTunnel").value=state.tunnel; $("simulationStage").value=String(state.stage); renderSimulation(); }
+  if (id === "brain") renderBrain();
   if (id === "cockpit" && sceneApi) sceneApi.resize();
   history.replaceState(null,"",`#${id}`); window.scrollTo(0,0);
+}
+function brainLabel() { return brainMode === "server" ? "服务器版" : "公开演示"; }
+function saveBrainSettings() { localStorage.setItem("tunnel-brain-mode", brainMode); localStorage.setItem("tunnel-brain-base-url", brainBaseUrl); }
+function brainEndpoint(path) { return `${brainBaseUrl.replace(/\/+$/, "")}${path}`; }
+function demoBrainAnswer(question) {
+  const p=project(), rows=p.segments.map(row=>({name:row[0],value:valueAt(row,state.stage),risk:riskFor(state.tunnel,valueAt(row,state.stage))})).sort((a,b)=>b.value-a.value);
+  const lead=rows[0], q=question.toLowerCase();
+  if (/来源|依据|规则|为什么|原因/.test(question)) return `${lead.name} 当前演示值为 ${lead.value.toFixed(2)} ${p.unit}，按“${p.threshold}”判为${lead.risk.short}。规则来源：项目中的 build_control_platform.py；公开演示区段和阶段过程属于模拟数据。`;
+  if (/建议|处理|怎么办|处置|复核/.test(question)) return `${lead.name} 当前为${lead.risk.name}。建议${adviceFor(state.tunnel,lead.risk)} 现场使用前需要接入真实测点、原始断面和工程人员复核。`;
+  if (/多少|最大|最严重|优先|哪里|哪个|风险/.test(q)) return `当前${p.name}在${stages[state.stage]}的最高演示指标是 ${lead.name}：${lead.value.toFixed(2)} ${p.unit}，等级为${lead.risk.short}。公开汇总：${p.summary}`;
+  return `当前已选${p.name}、${stages[state.stage]}。我可以帮助你查找最高指标、解释预警规则、给出处置建议或整理一份风险简报。当前回答只使用公开演示数据。`;
+}
+function renderBrain() {
+  $("brainDemoMode").classList.toggle("active",brainMode === "demo"); $("brainServerMode").classList.toggle("active",brainMode === "server");
+  $("brainBaseUrl").value=brainBaseUrl; $("brainBaseUrl").disabled=brainMode !== "server"; $("brainStatus").textContent=brainMode === "server" ? "未检查" : "演示模式"; $("brainStatus").className=`pill ${brainMode === "server" ? "" : ""}`;
+  $("brainConnectionNote").textContent=brainMode === "server" ? (brainBaseUrl ? "问题会发送到你填写的服务器，需先在服务器端登录。" : "先填写服务器地址，再检查接口。") : "演示模式不会发送问题，也不会读取服务器。";
+  $("brainModeNote").textContent=brainMode === "server" ? "服务器版回答 · Qwen + RAG · 需要登录" : "公开演示回答 · 脱敏汇总 + 当前模拟区段";
+  $("brainLogin").href=brainBaseUrl ? brainEndpoint("/login") : "#"; $("brainLogin").style.pointerEvents=brainBaseUrl ? "auto" : "none"; $("brainLogin").style.opacity=brainBaseUrl ? "1" : ".45";
+  $("brainSuggestions").replaceChildren(...["哪个区段需要优先复核？","请解释当前预警规则。","帮我给出现场处置建议。"].map(text=>{const b=make("button","suggestion",text);b.type="button";b.addEventListener("click",()=>{$("brainQuestion").value=text;$("brainQuestion").focus();});return b;}));
+  renderBrainMessages();
+}
+function renderBrainMessages() {
+  const box=$("brainMessages"); if(!brainHistory.length){box.replaceChildren(make("div","brain-empty","可以提问当前隧道的最高指标、风险区段、预警规则或处置建议。公开演示模式不会发送任何内容。"));return;}
+  box.replaceChildren(...brainHistory.map(item=>{const row=make("div",`brain-msg ${item.role}`),bubble=make("div","brain-bubble"),meta=make("span","brain-meta",`${item.role === "user" ? "我" : "智慧大脑"} · ${item.mode === "server" ? "服务器版" : "公开演示"}`);bubble.append(meta,document.createTextNode(item.content));row.append(bubble);return row;})); box.scrollTop=box.scrollHeight;
+}
+function addBrainMessage(role, content, mode=brainMode) { brainHistory.push({role,content,mode,time:new Date().toISOString()}); brainHistory=brainHistory.slice(-16); renderBrainMessages(); }
+async function checkBrain() {
+  if(!brainBaseUrl){$("brainStatus").textContent="缺少地址";$("brainConnectionNote").textContent="请先填写服务器地址，例如 https://tunnel.example.com。";return;}
+  $("brainStatus").textContent="检查中";
+  try { const response=await fetch(brainEndpoint("/api/brain/status"),{credentials:"include"}); const data=await response.json(); if(response.status===401){$("brainStatus").textContent="需要登录";$("brainConnectionNote").textContent="接口可达，但服务器要求登录。请先打开服务器登录页。";return;} if(!response.ok||!data.ok)throw new Error(data.error||"接口不可用"); $("brainStatus").textContent="已连接";$("brainConnectionNote").textContent=`接口已连接：${data.model || "模型已就绪"}。`; } catch(error) { $("brainStatus").textContent="连接失败";$("brainConnectionNote").textContent=`无法访问服务器：${error.message || error}；请检查 HTTPS、CORS 和地址。`; }
+}
+async function askBrain() {
+  const question=$("brainQuestion").value.trim(); if(!question)return; $("brainQuestion").value=""; addBrainMessage("user",question); const prior=brainHistory.filter(item=>item.role !== "assistant" || item.content).slice(-8).map(item=>({role:item.role,content:item.content,tunnel_name:project().name}));
+  $("brainAsk").disabled=true; let answer="";
+  try {
+    if(brainMode === "server") {
+      if(!brainBaseUrl) throw new Error("请先填写服务器地址");
+      const response=await fetch(brainEndpoint("/api/brain/chat"),{method:"POST",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({tunnel_id:state.tunnel,question,history:prior})}); const data=await response.json(); if(response.status===401)throw new Error("服务器要求登录，请先打开服务器登录页"); if(!response.ok||data.status === "error")throw new Error(data.message||data.error||"AI 接口调用失败"); answer=data.answer||data.message||"服务器没有返回回答。"; $("brainSources").textContent=data.rag_sources?.length ? `RAG 来源 ${data.rag_sources.length} 条` : "RAG 未返回来源";
+    } else { answer=demoBrainAnswer(question); $("brainSources").textContent="演示规则回答 · 无 RAG 请求"; }
+  } catch(error) { answer=`AI 接入暂时不可用：${error.message || error}`; $("brainSources").textContent=""; }
+  finally { addBrainMessage("assistant",answer);$("brainAsk").disabled=false; }
 }
 function explain() {
   const p=project(), s=segment(), current=valueAt(s,state.stage), risk=riskFor(state.tunnel,current);
@@ -216,9 +261,10 @@ $("generateReport").addEventListener("click",renderReport);$("reportTunnel").add
 $("patrolTunnel").addEventListener("change",()=>fillPatrolSegments());$("patrolSegment").addEventListener("change",renderPatrol);$("patrolNote").addEventListener("input",savePatrol);
 $("openSection").addEventListener("click",()=>{state.tunnel=$("patrolTunnel").value;state.index=Number($("patrolSegment").value);state.stage=6;setView("cockpit");render();});
 $("simulationStage").replaceChildren(...stages.map((label,i)=>{const option=make("option","",label);option.value=String(i);return option;}));$("simulationTunnel").addEventListener("change",renderSimulation);$("simulationStage").addEventListener("change",renderSimulation);$("disturbance").addEventListener("input",renderSimulation);
+$("brainDemoMode").addEventListener("click",()=>{brainMode="demo";saveBrainSettings();renderBrain();});$("brainServerMode").addEventListener("click",()=>{brainMode="server";saveBrainSettings();renderBrain();});$("brainBaseUrl").addEventListener("input",e=>{brainBaseUrl=e.target.value.trim().replace(/\/+$/,"");saveBrainSettings();$("brainLogin").href=brainBaseUrl?brainEndpoint("/login"):"#";});$("brainCheck").addEventListener("click",checkBrain);$("brainAsk").addEventListener("click",askBrain);$("brainQuestion").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();askBrain();}});$("brainClear").addEventListener("click",()=>{brainHistory=[];renderBrain();});
 $("csvFile").addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;if(file.size>5*1024*1024){$("qualityStatus").textContent="文件超过 5 MB";return;}inspectCsv(await file.text(),file.name);});
 $("sampleCsv").addEventListener("click",()=>inspectCsv("tunnel,station,date,metric,value,unit\n东安隧道,DK082+498,2026-10-01,超挖面积,6.710,㎡\n东安隧道,DK082+498,2026-10-01,超挖面积,6.710,㎡\n豆里冲隧道,测点A,2026-13-01,拱顶下沉,16.40,mm", "内置演示样例"));
 $("downloadTemplate").addEventListener("click",downloadCsv);
-render();renderReport();fillPatrolSegments();renderSimulation();iconRefresh();initScene();
-if(["quality","report","patrol","simulation"].includes(location.hash.slice(1)))setView(location.hash.slice(1));
+render();renderReport();fillPatrolSegments();renderSimulation();renderBrain();iconRefresh();initScene();
+if(["quality","report","patrol","simulation","brain"].includes(location.hash.slice(1)))setView(location.hash.slice(1));
 if ("serviceWorker" in navigator && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(error => console.warn("离线缓存未启用：", error));

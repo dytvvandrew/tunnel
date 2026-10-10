@@ -8,7 +8,7 @@
 
 ## GitHub Pages 网页
 
-仓库包含 docs/index.html 静态公开演示和 .github/workflows/pages.yml 自动部署流程。推送到 main 后，GitHub Actions 会发布到：
+仓库包含 docs/index.html 指挥舱静态公开演示（原介绍页为 docs/overview.html）和 .github/workflows/pages.yml 自动部署流程。推送到 main 后，GitHub Actions 会发布到：
 
     https://dytvvandrew.github.io/tunnel/
 

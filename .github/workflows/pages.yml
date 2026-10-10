@@ -1,3 +1,4 @@
+# Publish the sanitized static demo only; runtime data stays off GitHub.
 name: Deploy GitHub Pages
 
 on:
